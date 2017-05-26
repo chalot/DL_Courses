@@ -32,13 +32,15 @@ class Network(object):
         self.num_layers = len(sizes)
         self.sizes = sizes
         #np.random.randn(a, b)生成a行b列矩阵。sizes=[2，3，1],
-        #第二层和第三层bias向量：[np.random.randn(3, 1) np.random.randn(2, 1)]
+        #生成L2和L3 bias向量：[np.random.randn(3, 1) np.random.randn(2, 1)]
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
+        #很巧妙！zip有配对作用，zip(sizes[:-1], sizes[1:]) = （2,3），（3,1），然后再分别生成两个矩阵，对应L2和L3权值矩阵
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
+        #很简洁！向前遍历计算各层，全部是向量运算，效率高
         for b, w in zip(self.biases, self.weights):
             a = sigmoid(np.dot(w, a)+b)
         return a
@@ -55,9 +57,10 @@ class Network(object):
         tracking progress, but slows things down substantially."""
         if test_data: n_test = len(test_data)
         n = len(training_data)
+        #注意：xrange与range的区别。xrange并不是一次生成所有数据，而只是在遍历时才逐个产生数据。range一次性生成所有数据
         for j in xrange(epochs):
-            random.shuffle(training_data)
-            mini_batches = [
+            random.shuffle(training_data)  #打乱数据，起到随机抽取的效果
+            mini_batches = [    #从打乱后的数据集中找出n个mini_batch_size大小的batch
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
