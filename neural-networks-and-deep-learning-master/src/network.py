@@ -64,7 +64,7 @@ class Network(object):
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta)
+                self.update_mini_batch(mini_batch, eta) #训练，eta为学习率
             if test_data:
                 print "Epoch {0}: {1} / {2}".format(
                     j, self.evaluate(test_data), n_test)
@@ -79,15 +79,16 @@ class Network(object):
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
-            delta_nabla_b, delta_nabla_w = self.backprop(x, y)
-            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+            delta_nabla_b, delta_nabla_w = self.backprop(x, y) #反向传播，逐层计算b,w的梯度
+            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)] 
+            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)] 
         self.weights = [w-(eta/len(mini_batch))*nw
                         for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
 
-    def backprop(self, x, y):
+        #x：数据，y：标签
+        def backprop(self, x, y):
         """Return a tuple ``(nabla_b, nabla_w)`` representing the
         gradient for the cost function C_x.  ``nabla_b`` and
         ``nabla_w`` are layer-by-layer lists of numpy arrays, similar
@@ -98,12 +99,12 @@ class Network(object):
         activation = x
         activations = [x] # list to store all the activations, layer by layer
         zs = [] # list to store all the z vectors, layer by layer
-        for b, w in zip(self.biases, self.weights):
-            z = np.dot(w, activation)+b
+        for b, w in zip(self.biases, self.weights):  #向进行一次前向传播
+            z = np.dot(w, activation)+b #权值更新
             zs.append(z)
-            activation = sigmoid(z)
+            activation = sigmoid(z) #更新神经元输出，sigmoid激活函数
             activations.append(activation)
-        # backward pass
+        # backward pass 反向传播
         delta = self.cost_derivative(activations[-1], y) * \
             sigmoid_prime(zs[-1])
         nabla_b[-1] = delta
